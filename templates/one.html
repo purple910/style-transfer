@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-select.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap-select.min.js') }}"></script>
+    <style>
+        .wrap {
+            margin: 100px auto;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<div class="container ">
+    <div class="row wrap">
+        <div class="col-xl">
+            <label>
+                <select class="selectpicker" data-style="btn-info" id="selectStyle">
+                    <option>wave</option>
+                    <option>candy</option>
+                    <option>feathers</option>
+                </select>
+            </label>
+            <img id="style">
+        </div>
+        <div class="col-xl">
+            <div class="input-group mb-lg-3">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button">文件</button>
+                </div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="contentImg"
+                           onchange="showImg(this, '#content', '#content_label')">
+                    <label id="content_label" class="custom-file-label" for="contentImg">img</label>
+                </div>
+            </div>
+            <img id="content">
+        </div>
+        <div class="col-xl">
+            <h2 class="h2">result</h2>
+            <img src="" id="result">
+        </div>
+    </div>
+    <div style="text-align:center">
+        <button id="btn" type="button" class="btn btn-primary btn-lg">button</button>
+        <a  type="button" class="btn btn-primary btn-lg" href="index">返回</a>
+    </div>
+</div>
+<script>
+
+    function showImg(file, imgId, labelId) {
+        var $file = $(file);
+        var fileObj = $file[0];
+        var windowURL = window.URL || window.webkitURL;
+        var dataURL;
+        var $img = $(imgId);
+        $(labelId).html(fileObj.files[0].name);
+
+        if (fileObj && fileObj.files && fileObj.files[0]) {
+            dataURL = windowURL.createObjectURL(fileObj.files[0]);
+            $img.attr('src', dataURL);
+            var l = $file.width / 380;
+            $img.attr('width', 380);
+            $img.attr('height', $file.height / l);
+        } else {
+            dataURL = $file.val();
+            var imgObj = document.getElementById(imgId);
+            // 两个坑:
+            // 1、在设置filter属性时，元素必须已经存在在DOM树中，动态创建的Node，也需要在设置属性前加入到DOM中，先设置属性在加入，无效；
+            // 2、src属性需要像下面的方式添加，上面的两种方式添加，无效；
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+        }
+        console.log(dataURL)
+    }
+
+    $('#selectStyle').change(function (e) {
+        var select = $(this);
+        var imgName = select.val();
+
+        var $img = $('#style');
+        $img.attr('src', 'static/img/style/jpg/' + imgName + ".jpg");
+        $img.attr('width', 380);
+    })
+
+    $('#btn').click(function (e) {
+        var style = $('#style').src;
+        console.log(style);
+        var content = $('content').src;
+        console.log(content)
+        $.post();
+    })
+
+</script>
+</body>
+</html>
