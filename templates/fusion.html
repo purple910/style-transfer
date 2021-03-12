@@ -9,10 +9,74 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap-select.min.js') }}"></script>
+    <style>
+
+    </style>
 </head>
 <body>
 <div class="container">
-    <div class=""></div>
+    <div class="row ">
+        <div class="col-xl-4">
+            <div class="input-group mb-lg-3">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button">文件</button>
+                </div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="contentImg"
+                           onchange="showImg(this, '#content_label')"
+                           accept="image/jpg,image/jpeg,image/png,image/PNG">
+                    <label id="content_label" class="custom-file-label" for="contentImg">img</label>
+                </div>
+            </div>
+            <img id="content">
+        </div>
+        <div class="col-xl-8">
+            <img id="result">
+        </div>
+    </div>
+    <button class="btn btn-info" id="btn">btn</button>
 </div>
+<script>
+
+
+    function showImg(file, labelId) {
+        var $file = $(file);
+        var fileObj = $file[0];
+        var $img = $('#content');
+        $(labelId).html(fileObj.files[0].name);
+        var reads = new FileReader();
+        reads.readAsDataURL(fileObj.files[0]);
+        reads.onload = function (e) {
+            document.getElementById("content").src = this.result;
+            var l = $file.width / 360;
+            $img.attr('width', 360);
+            $img.attr('height', $file.height / l);
+        };
+    }
+
+
+    $("#btn").on('click', function (e) {
+        var src = $('#content')[0].src;
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        $.ajax({
+            type: "post",
+            url: $SCRIPT_ROOT + '/style-merge',
+            data: JSON.stringify(src),
+            async: false,
+            contentType: 'application/json',
+            success: (data) => {
+                console.log(data);
+                var $result = $("#result");
+                $result.attr('src', data.result);
+                $result.attr('width', 720);
+            },
+            error: (e) => {
+                console.log(e)
+            }
+        });
+    });
+
+
+</script>
 </body>
 </html>

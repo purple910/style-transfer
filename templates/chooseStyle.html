@@ -9,11 +9,98 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap-select.min.js') }}"></script>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .yes {
+            width: 40px;
+            position: absolute;
+            border-radius: 20px;
+            right: 40px;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .img {
+            width: 120px;
+            height: auto;
+            border-radius: 20px;
+            position: absolute;
+            overflow: hidden;
+        }
+
+        .div_img {
+            width: 120px;
+            height: 120px;
+            overflow: hidden;
+            border-radius: 20px;
+            float: left;
+            margin: 15px 15px;
+            position: relative;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
 
+    {% for img in imgs %}
+        {#    <img src="{{ img }}" class="img-thumbnail" width="256" height="256">#}
+        <div class="div_img">
+            <img src="/static/img/style/great.png" class="yes hidden" title="{{ img.label }}">
+            <img src="{{ img.url }}" class="img-thumbnail img">
+        </div>
+    {% endfor %}
+    <button class="btn btn-info" id="fusion">选择</button>
 </div>
 
+<script>
+    var count = 0;
+    $(".div_img").on("click", function (e) {
+        const yes = $(this).find(".yes");
+        if (yes.hasClass("hidden")) {
+            if (count === 4) {
+                alert("最多选择4个");
+                return;
+            }
+            count++;
+            yes.removeClass("hidden");
+        } else {
+            count--;
+            yes.addClass("hidden");
+        }
+    });
+
+
+    $("#fusion").on('click', function (e) {
+        if (count === 1 || count === 2 || count === 4) {
+            var list = $(".yes").not(".hidden");
+            var data = [];
+            if (list.length === 1) {
+                data.push(list[0].title)
+            } else if (list.length === 2) {
+                data.push(list[0].title)
+                data.push(list[1].title)
+            } else if (list.length === 4) {
+                data.push(list[0].title)
+                data.push(list[1].title)
+                data.push(list[2].title)
+                data.push(list[3].title)
+            }
+
+            {#console.log(a);#}
+            {#$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};#}
+            {#$.getJSON($SCRIPT_ROOT + '/fusion', {#}
+            {#    data#}
+            {#, function (data) {#}
+            {#console.log(data)#}
+            {#);#}
+            {#console.log(data)#}
+            window.location.href = "/fusion?data=" + data;
+        }
+    });
+
+</script>
 </body>
 </html>

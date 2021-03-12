@@ -36,7 +36,7 @@
                 </div>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="contentImg"
-                           onchange="showImg(this, '#content', '#content_label')">
+                           onchange="showImg(this, 'content', '#content_label')">
                     <label id="content_label" class="custom-file-label" for="contentImg">img</label>
                 </div>
             </div>
@@ -54,30 +54,17 @@
 </div>
 <script>
 
-    function showImg(file, imgId, labelId) {
+    function showImg(file,img, labelId) {
         var $file = $(file);
         var fileObj = $file[0];
-        var windowURL = window.URL || window.webkitURL;
-        var dataURL;
-        var $img = $(imgId);
         $(labelId).html(fileObj.files[0].name);
-
-        if (fileObj && fileObj.files && fileObj.files[0]) {
-            dataURL = windowURL.createObjectURL(fileObj.files[0]);
-            $img.attr('src', dataURL);
-            var l = $file.width / 380;
-            $img.attr('width', 380);
-            $img.attr('height', $file.height / l);
-        } else {
-            dataURL = $file.val();
-            var imgObj = document.getElementById(imgId);
-            // 两个坑:
-            // 1、在设置filter属性时，元素必须已经存在在DOM树中，动态创建的Node，也需要在设置属性前加入到DOM中，先设置属性在加入，无效；
-            // 2、src属性需要像下面的方式添加，上面的两种方式添加，无效；
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
-            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
-        }
-        console.log(dataURL)
+        var reads = new FileReader();
+        reads.readAsDataURL(fileObj.files[0]);
+        var $img = $('#'+img)
+        reads.onload = function (e) {
+            document.getElementById(img).src = this.result;
+            $img.attr('width', 360);
+        };
     }
 
     $('#selectStyle').change(function (e) {
@@ -92,7 +79,7 @@
     $('#btn').click(function (e) {
         var style = $('#style').src;
         console.log(style);
-        var content = $('content').src;
+        var content = $('content')[0].src;
         console.log(content)
         $.post();
     })
