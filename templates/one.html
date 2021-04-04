@@ -19,7 +19,7 @@
 <body>
 <div class="container ">
     <div class="row wrap">
-        <div class="col-xl">
+        <div class="col-xl-4">
             <label>
                 <select class="selectpicker" data-style="btn-info" id="selectStyle">
                     <option>wave</option>
@@ -29,7 +29,7 @@
             </label>
             <img id="style">
         </div>
-        <div class="col-xl">
+        <div class="col-xl-4">
             <div class="input-group mb-lg-3">
                 <div class="input-group-prepend">
                     <button class="btn btn-outline-secondary" type="button">文件</button>
@@ -42,25 +42,24 @@
             </div>
             <img id="content">
         </div>
-        <div class="col-xl">
+        <div class="col-xl-4">
             <h2 class="h2">result</h2>
             <img src="" id="result">
         </div>
-    </div>
-    <div style="text-align:center">
-        <button id="btn" type="button" class="btn btn-primary btn-lg">button</button>
-        <a  type="button" class="btn btn-primary btn-lg" href="index">返回</a>
+        <div style="text-align:center">
+            <button id="btn" type="button" class="btn btn-primary btn-lg">转换</button>
+            <a type="button" class="btn btn-primary btn-lg" href="index">返回</a>
+        </div>
     </div>
 </div>
 <script>
-
-    function showImg(file,img, labelId) {
+    function showImg(file, img, labelId) {
         var $file = $(file);
         var fileObj = $file[0];
         $(labelId).html(fileObj.files[0].name);
         var reads = new FileReader();
         reads.readAsDataURL(fileObj.files[0]);
-        var $img = $('#'+img)
+        var $img = $('#' + img)
         reads.onload = function (e) {
             document.getElementById(img).src = this.result;
             $img.attr('width', 360);
@@ -73,17 +72,28 @@
 
         var $img = $('#style');
         $img.attr('src', 'static/img/style/jpg/' + imgName + ".jpg");
-        $img.attr('width', 380);
+        $img.attr('width', 360);
+        $img.attr('alt', imgName)
     })
 
     $('#btn').click(function (e) {
-        var style = $('#style').src;
+        var style = $('#style')[0].alt;
         console.log(style);
-        var content = $('content')[0].src;
+        var content = $('#content')[0].src;
         console.log(content)
-        $.post();
-    })
 
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        $.post($SCRIPT_ROOT + '/one-merge', {
+            "style": style,
+            'content': content
+        }, function (data, status) {
+            {#console.log(data, status)#}
+            var $result = $("#result");
+            $result.attr('src', data.result);
+            {#console.log(data.result)#}
+            $result.attr('width', 360);
+        });
+    })
 </script>
 </body>
 </html>

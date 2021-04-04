@@ -22,13 +22,43 @@ def one():
     return render_template('one.html')
 
 
+@app.route('/one-merge', methods=['post'])
+def one_merge():
+    style = request.values.get('style')
+    content = request.values.get('content')
+    dataPath = content[22:]
+    imagedata = base64.b64decode(dataPath)
+    if os.path.exists('static/img/content/one.jpg'):
+        os.remove('static/img/content/one.jpg')
+    with open('static/img/content/one.jpg', 'wb') as file:
+        file.write(imagedata)
+        file.close()
+    return jsonify(result='static/img/result/test.jpg')
+
+
 @app.route('/change')
 def change():
     return render_template('change.html')
 
 
+@app.route('/change-merge', methods=['post'])
+def change_merge():
+    style = request.values.get('style')
+    print(style)
+    content = request.values.get('content')
+    dataPath = content[22:]
+    imagedata = base64.b64decode(dataPath)
+    if os.path.exists('static/img/content/change.jpg'):
+        os.remove('static/img/content/change.jpg')
+    with open('static/img/content/change.jpg', 'wb') as file:
+        file.write(imagedata)
+        file.close()
+    return jsonify(result=['static/img/result/test.jpg', 'static/img/result/touxiang.jpg'])
+
+
 @app.route('/fusion', methods=['GET', 'POST'])
 def fusion():
+    """多风格的保存"""
     data = request.args
     # print(data)
     imgs = data.to_dict().get('data').split(',')
@@ -41,12 +71,13 @@ def fusion():
 
 @app.route('/style-merge', methods=['post'])
 def merge():
+    """多风格转换返回值"""
     data = request.json
     dataPath = data[22:]
     imagedata = base64.b64decode(dataPath)
-    if os.path.exists('static/img/result/touxiang.jpg'):
-        os.remove('static/img/result/touxiang.jpg')
-    with open('static/img/result/touxiang.jpg', 'wb') as file:
+    if os.path.exists('static/img/content/fusion.jpg'):
+        os.remove('static/img/content/fusion.jpg')
+    with open('static/img/content/fusion.jpg', 'wb') as file:
         file.write(imagedata)
         file.close()
     styles = session.get('imgs')
@@ -57,6 +88,7 @@ def merge():
 
 @app.route('/chooseStyle')
 def chooseStyle():
+    """多风格选择"""
     png = os.listdir('static/img/style/png')
     imgs = []
     for i in png:
