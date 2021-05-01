@@ -74,7 +74,7 @@
             success: (data) => {
                 console.log(data);
                 var $result = $("#result");
-                $result.attr('src', data.result);
+                $result.attr('src', data.result + "?s=" + (new Date()).getTime());
                 $result.attr('width', 720);
             },
             error: (e) => {

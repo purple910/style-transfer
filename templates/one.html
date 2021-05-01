@@ -25,6 +25,14 @@
                     <option>wave</option>
                     <option>candy</option>
                     <option>feathers</option>
+                    <option>mosaic</option>
+                    <option>cubist</option>
+                    <option>painting</option>
+                    <option>picasso</option>
+                    <option>scream</option>
+                    <option>udnie</option>
+                    <option>denoised_starry</option>
+                    <option>(39)</option>
                 </select>
             </label>
             <img id="style">
@@ -89,7 +97,7 @@
         }, function (data, status) {
             {#console.log(data, status)#}
             var $result = $("#result");
-            $result.attr('src', data.result);
+            $result.attr('src', data.result + "?s=" + (new Date()).getTime());
             {#console.log(data.result)#}
             $result.attr('width', 360);
         });

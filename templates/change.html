@@ -23,8 +23,12 @@
             <label>
                 <select class="selectpicker" data-style="btn-info" id="selectStyle">
                     <option>wave</option>
-                    <option>candy</option>
                     <option>feathers</option>
+                    <option>cubist</option>
+                    <option>mosaic</option>
+                    <option>scream</option>
+                    <option>udnie</option>
+                    <option>denoised_starry</option>
                 </select>
             </label>
             <img id="style">
@@ -42,11 +46,15 @@
             </div>
             <img id="content">
         </div>
-        <div class="col-xl-6">
+        <div class="col-xl-4">
+            <h2 class="h2">已有模型</h2>
+            <img src="" id="vgg">
+        </div>
+        <div class="col-xl-4">
             <h2 class="h2">vgg16</h2>
             <img src="" id="vgg16">
         </div>
-        <div class="col-xl-6">
+        <div class="col-xl-4">
             <h2 class="h2">vgg19</h2>
             <img src="" id="vgg19">
         </div>
@@ -92,14 +100,17 @@
             "style": style,
             'content': content
         }, function (data, status) {
-            console.log(data, status)
-            console.log(data.result)
+            {#console.log(data, status)#}
+            {#console.log(data.result)#}
             var $result = $("#vgg16");
-            $result.attr('src', data.result[0]);
-            $result.attr('width', 360);
+            $result.attr('src', data.result[0] + "?s=" + (new Date()).getTime());
+            $result.attr('width', 250);
             var $result = $("#vgg19");
-            $result.attr('src', data.result[1]);
-            $result.attr('width', 360);
+            $result.attr('src', data.result[1] + "?s=" + (new Date()).getTime());
+            $result.attr('width', 250);
+            var $result = $("#vgg");
+            $result.attr('src', data.result[2] + "?s=" + (new Date()).getTime());
+            $result.attr('width', 250);
         });
     })
 </script>

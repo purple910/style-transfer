@@ -210,3 +210,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+core/result
+core/models
+core/model

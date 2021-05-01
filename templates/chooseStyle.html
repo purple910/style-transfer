@@ -78,15 +78,15 @@
             var list = $(".yes").not(".hidden");
             var data = [];
             if (list.length === 1) {
-                data.push(list[0].title)
+                data.push(list[0].title - 1)
             } else if (list.length === 2) {
-                data.push(list[0].title)
-                data.push(list[1].title)
+                data.push(list[0].title - 1);
+                data.push(list[1].title - 1)
             } else if (list.length === 4) {
-                data.push(list[0].title)
-                data.push(list[1].title)
-                data.push(list[2].title)
-                data.push(list[3].title)
+                data.push(list[0].title - 1);
+                data.push(list[1].title - 1);
+                data.push(list[2].title - 1);
+                data.push(list[3].title - 1)
             }
 
             {#console.log(a);#}
@@ -98,6 +98,8 @@
             {#);#}
             {#console.log(data)#}
             window.location.href = "/fusion?data=" + data;
+        } else {
+            alert("所选的风格图像个数为1，2，4")
         }
     });
 
