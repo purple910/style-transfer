@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 
 import requests
@@ -35,7 +36,8 @@ def one_merge():
     with open('static/img/content/one.jpg', 'wb') as file:
         file.write(imagedata)
         file.close()
-    vgg19_style_transfer('static/img/content/one.jpg', 'core/models/vgg19_paintA_' + style, 'static/img/result/test.jpg')
+    vgg19_style_transfer('static/img/content/one.jpg', 'core/models/vgg19_paintA_' + style,
+                         'static/img/result/test.jpg')
     return jsonify(result='static/img/result/test.jpg')
 
 
@@ -47,7 +49,6 @@ def change():
 @app.route('/change-merge', methods=['post'])
 def change_merge():
     style = request.values.get('style')
-    print(style)
     content = request.values.get('content')
     dataPath = content[22:]
     imagedata = base64.b64decode(dataPath)
@@ -56,8 +57,10 @@ def change_merge():
     with open('static/img/content/change.jpg', 'wb') as file:
         file.write(imagedata)
         file.close()
-    vgg19_style_transfer('static/img/content/change.jpg', 'core/models/vgg19_paintA_' + style, 'static/img/result/vgg19.jpg')
-    vgg16_style_transfer('static/img/content/change.jpg', 'core/models/vgg16_' + style + '/fast_style_transfer.ckpt-done',
+    vgg19_style_transfer('static/img/content/change.jpg', 'core/models/vgg19_paintA_' + style,
+                         'static/img/result/vgg19.jpg')
+    vgg16_style_transfer('static/img/content/change.jpg',
+                         'core/models/vgg16_' + style + '/fast_style_transfer.ckpt-done',
                          'static/img/result/vgg16.jpg')
     vgg16_style_transfer('static/img/content/change.jpg', 'core/model/' + style + '.ckpt-done',
                          'static/img/result/vgg.jpg')
@@ -78,7 +81,7 @@ def fusion():
 
 
 @app.route('/style-merge', methods=['post'])
-def merge():
+def style_merge():
     """多风格转换返回值"""
     data = request.json
     dataPath = data[22:]
@@ -89,10 +92,40 @@ def merge():
         file.write(imagedata)
         file.close()
     styles = session.get('imgs')
-    print(styles)
-    # print(index_add_counter)
     fusion_style_transfer('static/img/content/fusion.jpg', 'static/img/result/', styles)
     return jsonify(result='static/img/result/result_2.jpg')
+
+
+@app.route('/customize', methods=['GET', 'POST'])
+def customize():
+    """
+    多风格的保存
+    自定义风格权重
+    """
+    data = request.args
+    imgs = data.to_dict().get('data').split(',')
+    session['customize'] = imgs
+    b = [int(i) + 1 for i in imgs]
+    return render_template('customize.html', imgs=b)
+
+
+@app.route('/customize-weights', methods=['post'])
+def customize_weights():
+    """自定义权重"""
+    js = json.loads(request.get_data(as_text=True))
+    data = js["content"]
+    weights = js["weights"]
+    # print(data)
+    dataPath = data[22:]
+    imagedata = base64.b64decode(dataPath)
+    if os.path.exists('static/img/content/fusion.jpg'):
+        os.remove('static/img/content/fusion.jpg')
+    with open('static/img/content/fusion.jpg', 'wb') as file:
+        file.write(imagedata)
+        file.close()
+    styles = session.get('customize')
+    custom_style_transfer('static/img/content/fusion.jpg', 'static/img/result/', styles, weights)
+    return jsonify(result='static/img/result/result_customize.jpg')
 
 
 @app.route('/chooseStyle')

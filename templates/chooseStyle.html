@@ -52,7 +52,8 @@
             <img src="{{ img.url }}" class="img-thumbnail img">
         </div>
     {% endfor %}
-    <button class="btn btn-info" id="fusion">选择</button>
+    <button class="btn btn-info" id="fusion">随机权重</button>
+    <button class="btn btn-info" id="customize">自定义权重</button>
 </div>
 
 <script>
@@ -60,10 +61,10 @@
     $(".div_img").on("click", function (e) {
         const yes = $(this).find(".yes");
         if (yes.hasClass("hidden")) {
-            if (count === 4) {
-                alert("最多选择4个");
-                return;
-            }
+            {#if (count === 4) {#}
+            {#    alert("最多选择4个");#}
+            {#    return;#}
+            {##}
             count++;
             yes.removeClass("hidden");
         } else {
@@ -87,6 +88,8 @@
                 data.push(list[1].title - 1);
                 data.push(list[2].title - 1);
                 data.push(list[3].title - 1)
+            } else {
+                alert("风格选择只能是1,2,4")
             }
 
             {#console.log(a);#}
@@ -101,6 +104,15 @@
         } else {
             alert("所选的风格图像个数为1，2，4")
         }
+    });
+
+    $("#customize").on('click', function (e) {
+        var list = $(".yes").not(".hidden");
+        var data = [];
+        for (let i = 0; i < list.length; i++) {
+            data.push(list[i].title - 1)
+        }
+        window.location.href = "/customize?data=" + data;
     });
 
 </script>

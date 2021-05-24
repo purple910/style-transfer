@@ -86,9 +86,7 @@
 
     $('#btn').click(function (e) {
         var style = $('#style')[0].alt;
-        console.log(style);
         var content = $('#content')[0].src;
-        console.log(content)
 
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         $.post($SCRIPT_ROOT + '/one-merge', {

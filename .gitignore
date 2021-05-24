@@ -213,3 +213,4 @@ dmypy.json
 core/result
 core/models
 core/model
+static/img/result

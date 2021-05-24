@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import tensorflow as tf  # 导入tensorflow模块
 import numpy as np  # 导入numpy模块
 from PIL import Image  # 导入PIL模块
@@ -12,16 +14,14 @@ parser = argparse.ArgumentParser()  # 定义一个参数设置器
 
 # 修改以下5个参数以开启训练
 parser.add_argument("--PATH_IMG", type=str, default="./content/content.png")  # 参数：选择测试图像
-parser.add_argument("--LABEL_1", type=int, default=12)  # 参数：风格1
-parser.add_argument("--LABEL_2", type=int, default=1)  # 参数：风格2
+parser.add_argument("--LABEL", type=int, default=[0, 1, 2, 3])  # 参数：风格1
 
 # 固定参数
 parser.add_argument("--LABELS_NUMS", type=int, default=26)  # 参数：风格数量
-parser.add_argument("--PATH_MODEL", type=str, default="./models/train2014_models/")  # 参数：模型存储路径
+parser.add_argument("--PATH_MODEL", type=str, default="./models/paintA_models/")  # 参数：模型存储路径
 parser.add_argument("--PATH_RESULTS", type=str, default="./result/")  # 参数：测试结果存储路径
 parser.add_argument("--PATH_STYLE", type=str, default="./style/png/")  # 参数：风格图片路径
-parser.add_argument("--ALPHA1", type=float, default=0.5)  # 参数：Alpha1，风格权重，默认为0.25
-parser.add_argument("--ALPHA2", type=float, default=0.5)  # 参数：Alpha2，风格权重，默认为0.25
+parser.add_argument("--ALPHA", type=float, default=[0.25, 0.25, 0.25, 0.25])  # 参数：Alpha1，风格权重，默认为0.25
 
 args = parser.parse_args()  # 定义参数集合args
 
@@ -62,8 +62,8 @@ class Stylizer(object):
         self.img = np.array(img_input)
 
     def set_style(self):
-        # 将用户选取的2个风格存储在tuple中
-        self.label_list = (self.stylizer_arg.LABEL_1, self.stylizer_arg.LABEL_2)
+        # 将用户选取的4个风格存储在tuple中
+        self.label_list = tuple(self.stylizer_arg.LABEL)
 
     def set_weight(self, weight_dict):
         # 初始化input_weight
@@ -90,72 +90,13 @@ class Stylizer(object):
         Image.fromarray(np.uint8(img[0, :, :, :])).save(file_name)
         return img
 
-    def generate_result(self):
-        size = 4
-        i = 0
-        # 按行生成
-        while i < size:
-            # 1、2风格权重之和
-            x_sum = 100 - i * 25.0
-            # 1、2风格之和进行五等分，计算权重step值
-            x_step = x_sum / 4.0
-
-            # 按列生成
-            j = 0
-            while j < size:
-                # 计算1、2风格的权重
-                ap1 = x_sum - j * x_step
-                ap2 = j * x_step
-                # 归一化后存到alphas中
-                alphas = (float('%.2f' % (ap1 / 100.0)),
-                          float('%.2f' % (ap2 / 100.0)))
-                # 返回融合后图像
-                img_return = self.stylize(alphas)
-                # array转IMG
-                img_return = Image.fromarray(np.uint8(img_return[0, :, :, :]))
-                # 将4个图像按行拼接
-                if j == 0:
-                    width, height = img_return.size
-                    img_5 = Image.new(img_return.mode, (width * 4, height))
-                img_5.paste(img_return, (width * j, 0, width * (j + 1), height))
-                j = j + 1
-
-            # 将多个行拼接图像，拼接成4*4矩阵
-            if i == 0:
-                img_25 = Image.new(img_return.mode, (width * 4, height * 4))
-            img_25.paste(img_5, (0, height * i, width * 4, height * (i + 1)))
-
-            i = i + 1
-
-        # 将4*4矩阵图像的2个角加上2个风格图像，以作对比
-        img25_4 = Image.new(img_25.mode, (width * 6, height * 4))
-        img25_4 = ImageOps.invert(img25_4)
-        img25_4.paste(
-            center_crop_img(Image.open(
-                self.stylizer_arg.PATH_STYLE + str(self.label_list[0] + 1) + '.png')).resize((width, height)),
-            (0, 0, width, height))
-        img25_4.paste(
-            center_crop_img(Image.open(
-                self.stylizer_arg.PATH_STYLE + str(self.label_list[1] + 1) + '.png')).resize((width, height)),
-            (width * 5, 0, width * 6, height))
-        img25_4.paste(img_25, [width, 0, width * 5, height * 4])
-
-        self.img25 = img_25
-        self.img25_4 = img25_4
-
     def save_result(self):
-        # 存储4*4图像矩阵
-        self.img25.save(self.stylizer_arg.PATH_RESULTS + 'result_1' + '.jpg')
-        # self.img25.show()
-        # 存储4*4+2风格图像矩阵
-        self.img25_4.save(self.stylizer_arg.PATH_RESULTS + 'result_2' + '.jpg')
-        # self.img25_4.show()
-        self.img1.save(self.stylizer_arg.PATH_RESULTS + 'result_3' + '.jpg')
-        # self.img1.show()
+        # 存储图像矩阵
+        self.img1.save(self.stylizer_arg.PATH_RESULTS + 'result_customize' + '.jpg')
         print('Image Matrix Saved Successfully!')
 
     def generate_one(self):
-        img_return = self.stylize([self.stylizer_arg.ALPHA1, self.stylizer_arg.ALPHA2])
+        img_return = self.stylize(self.stylizer_arg.ALPHA)
         img_return = Image.fromarray(np.uint8(img_return[0, :, :, :]))
         width, height = img_return.size
         img1 = Image.new(img_return.mode, (width, height))
@@ -170,8 +111,6 @@ def get_image_matrix(arg):
     stylizer0.read_image()
     # 存储风格标签
     stylizer0.set_style()
-    # 生成融合图片
-    stylizer0.generate_result()
     # 根据风格权重生成一张图像
     stylizer0.generate_one()
     # 保存融合图片

@@ -33,8 +33,23 @@
             </div>
             <img id="content">
         </div>
-        <div class="col-xl-8">
-            <h2 class="h2">result</h2>
+        <div class="col-xl-2">
+            {% for img in imgs %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">  <img
+                                src="static/img/style/png/{{ img }}.png" class="img-thumbnail img" width="40"></span>
+                    </div>
+                    <input type="text" class="form-control custom" value="0.5" aria-describedby="basic-addon1">
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-xl-6">
+            <div class="input-group mb-lg-3">
+                <div class="input-group-prepend">
+                    <h3>结果</h3>
+                </div>
+            </div>
             <img id="result">
         </div>
         <div>
@@ -63,20 +78,30 @@
 
 
     $("#btn").on('click', function (e) {
-        var src = $('#content')[0].src;
+        let src = $('#content')[0].src;
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        cus = []
+        $C = $(".custom")
+        for (let i = 0; i < $C.length; i++) {
+            cus.push($($C[i]).val())
+        }
+        if (src === null || src === '') {
+            alert("选择内容图像")
+            return;
+        }
+
         $.ajax({
             type: "post",
             timeout: 10000,
-            url: $SCRIPT_ROOT + '/style-merge',
-            data: JSON.stringify(src),
+            url: $SCRIPT_ROOT + '/customize-weights',
+            data: JSON.stringify({"content": src, "weights": cus}),
             async: false,
             contentType: 'application/json',
             success: (data) => {
                 console.log(data);
                 var $result = $("#result");
                 $result.attr('src', data.result + "?s=" + (new Date()).getTime());
-                $result.attr('width', 720);
+                $result.attr('width', 480);
             },
             error: (e) => {
                 console.log(e)
