@@ -33,13 +33,13 @@ parser.add_argument("--STYLE_WEIGHT", type=float, default=5.0)
 # 风格图像路径
 parser.add_argument("--PATH_STYLE", type=str, default="./style/png/")
 # 生成模型路径
-parser.add_argument("--PATH_MODEL", type=str, default="./models/train2014_models/")
+parser.add_argument("--PATH_MODEL", type=str, default="./models/painting_trainA_models/")
 # VGG16路径
 parser.add_argument("--PATH_VGG16", type=str, default="./vggnet/")
 # 数据集路径
 parser.add_argument("--PATH_DATA", type=str, default="./data/")
 # 数据集名称
-parser.add_argument("--DATASET_NAME", type=str, default="train2014.tfrecords")
+parser.add_argument("--DATASET_NAME", type=str, default="painting_trainA.tfrecords")
 # 训练轮数
 parser.add_argument("--steps", type=int, default=50000)
 args = parser.parse_args()

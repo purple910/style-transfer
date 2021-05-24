@@ -11,7 +11,7 @@ import random
 parser = argparse.ArgumentParser()  # 定义一个参数设置器
 
 # 修改以下5个参数以开启训练
-parser.add_argument("--PATH_IMG", type=str, default="./content/stu.jpg")  # 参数：选择测试图像
+parser.add_argument("--PATH_IMG", type=str, default="./content/chicago.jpg")  # 参数：选择测试图像
 parser.add_argument("--LABEL_1", type=int, default=0)  # 参数：风格1
 
 # 固定参数

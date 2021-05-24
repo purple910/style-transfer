@@ -10,23 +10,22 @@ import os
 tf.app.flags.DEFINE_string('loss_model', 'vgg_16', 'The name of the architecture to evaluate. '
                            'You can view all the support models in nets/nets_factory.py')
 tf.app.flags.DEFINE_integer('image_size', 256, 'Image size to paintA.')
-# tf.app.flags.DEFINE_string("model_file", "models/vgg16_wave/landscape-style-model.ckpt-done", "")
+tf.app.flags.DEFINE_string("model_file", "models/vgg16_scream/fast_style_transfer.ckpt-done", "")
 # tf.app.flags.DEFINE_string("model_file", "E:\\python\\demo\\图像风格迁移\\vgg16_paintA_denoised_starry\\fast-style-model.ckpt-done.meta", "")
-tf.app.flags.DEFINE_string("model_file", 'model/vgg16_wave.ckpt-done', "")
-tf.app.flags.DEFINE_string("image_file", "content/stu.jpg", "")
+# tf.app.flags.DEFINE_string("model_file", 'model/vgg16_wave.ckpt-done', "")
+tf.app.flags.DEFINE_string("image_file", "content/chicago.jpg", "")
 tf.app.flags.DEFINE_string("out_file", "result/res_stu2.jpg", "")
 
 FLAGS = tf.app.flags.FLAGS
 
 
-def main():
-
+def main(flags):
     # Get image's height and width.
     height = 0
     width = 0
-    with open(FLAGS.image_file, 'rb') as img:
+    with open(flags.image_file, 'rb') as img:
         with tf.Session().as_default() as sess:
-            if FLAGS.image_file.lower().endswith('png'):
+            if flags.image_file.lower().endswith('png'):
                 image = sess.run(tf.image.decode_png(img.read()))
             else:
                 image = sess.run(tf.image.decode_jpeg(img.read()))
@@ -39,9 +38,9 @@ def main():
 
             # Read image data.
             image_preprocessing_fn, _ = preprocessing_factory.get_preprocessing(
-                FLAGS.loss_model,
+                flags.loss_model,
                 is_training=False)
-            image = reader.get_image(FLAGS.image_file, height, width, image_preprocessing_fn)
+            image = reader.get_image(flags.image_file, height, width, image_preprocessing_fn)
 
             # Add batch dimension
             image = tf.expand_dims(image, 0)
@@ -53,25 +52,20 @@ def main():
             generated = tf.squeeze(generated, [0])
 
             # Restore model variables.
-            saver = tf.train.Saver(tf.compat.v1.global_variables(), write_version=tf.compat.v1.train.SaverDef.v1)
+            saver = tf.train.Saver(tf.global_variables(), write_version=tf.train.SaverDef.V1)
             sess.run([tf.global_variables_initializer(), tf.local_variables_initializer()])
             # Use absolute path
-            FLAGS.model_file = os.path.abspath(FLAGS.model_file)
-            saver.restore(sess, FLAGS.model_file)
+            flags.model_file = os.path.abspath(flags.model_file)
+            saver.restore(sess, flags.model_file)
 
             # Generate and write image data to file.
-            with open(FLAGS.out_file, 'wb') as img:
+            with open(flags.out_file, 'wb') as img:
                 start_time = time.time()
                 img.write(sess.run(tf.image.encode_jpeg(generated)))
                 end_time = time.time()
                 tf.logging.info('Elapsed time: %fs' % (end_time - start_time))
-
-                tf.logging.info('Done. Please check %s.' % FLAGS.out_file)
+                tf.logging.info('Done. Please check %s.' % flags.out_file)
 
 
 if __name__ == '__main__':
-    # tf.logging.set_verbosity(tf.logging.INFO)
-    # 如果你的代码中的入口函数不叫main()，而是一个其他名字的函数，如test()，则你应该这样写入口tf.app.run(paintA_models)
-    # 如果你的代码中的入口函数叫main(_)，则你就可以把入口写成tf.app.run()
-    # tf.app.run()
-    main()
+    main(FLAGS)

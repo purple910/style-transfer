@@ -11,9 +11,9 @@ def the_current_time():
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time()))))
 
 
-style = 'denoised_starry'
+style = 'wave'
 model = 'models/vgg19_paintA_%s' % style
-content_image = 'content/stu.jpg'
+content_image = 'content/chicago.jpg'
 result_image = 'result/stu2_%s.jpg' % style
 X_image = imread(content_image)
 
