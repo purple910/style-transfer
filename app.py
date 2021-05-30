@@ -94,9 +94,6 @@ def times():
     return render_template('times.html')
 
 
-import time
-
-
 @app.route('/times-merge', methods=['post'])
 def times_merge():
     style = request.values.get('style')
@@ -109,9 +106,8 @@ def times_merge():
         file.write(imagedata)
         file.close()
     result = []
-    time.sleep(20)
     for i in range(10):
-        # vgg19_style_transfer_times('static/img/content/change.jpg', str(i))
+        vgg19_style_transfer_times('static/img/content/change.jpg', str(i))
         result.append('static/img/result/mosaic_' + str(i) + '.jpg')
     return jsonify(result=result)
 
