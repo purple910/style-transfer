@@ -92,7 +92,7 @@ class Stylizer(object):
 
     def save_result(self):
         # 存储图像矩阵
-        self.img1.save(self.stylizer_arg.PATH_RESULTS + 'result_customize' + '.jpg')
+        self.img1.save(self.stylizer_arg.PATH_RESULTS)
         print('Image Matrix Saved Successfully!')
 
     def generate_one(self):

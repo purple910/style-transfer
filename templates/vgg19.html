@@ -19,21 +19,25 @@
 <body>
 <div class="container ">
     <div class="row wrap">
-        <div class="col-xl-6">
+        <div class="col-xl-4">
             <label>
                 <select class="selectpicker" data-style="btn-info" id="selectStyle">
-                    <option>feathers</option>
+                    <option>candy</option>
                     <option>wave</option>
-                    <option>cubist</option>
+                    <option>feathers</option>
                     <option>mosaic</option>
+                    <option>cubist</option>
+                    <option>painting</option>
+                    <option>picasso</option>
                     <option>scream</option>
                     <option>udnie</option>
                     <option>denoised_starry</option>
+                    <option>(39)</option>
                 </select>
             </label>
             <img id="style">
         </div>
-        <div class="col-xl-6">
+        <div class="col-xl-4">
             <div class="input-group mb-lg-3">
                 <div class="input-group-prepend">
                     <button class="btn btn-outline-secondary" type="button">文件</button>
@@ -47,23 +51,14 @@
             <img id="content">
         </div>
         <div class="col-xl-4">
-            <h2 class="h2">已有模型</h2>
-            <img src="" id="vgg">
-        </div>
-        <div class="col-xl-4">
-            <h2 class="h2">vgg16</h2>
-            <img src="" id="vgg16">
-        </div>
-        <div class="col-xl-4">
-            <h2 class="h2">vgg19</h2>
-            <img src="" id="vgg19">
+            <h2 class="h2">VGG19 result</h2>
+            <img src="" id="result">
         </div>
         <div style="text-align:center">
             <button id="btn" type="button" class="btn btn-primary btn-lg">转换</button>
             <a type="button" class="btn btn-primary btn-lg" href="index">返回</a>
         </div>
     </div>
-
 </div>
 <script>
     function showImg(file, img, labelId) {
@@ -91,26 +86,18 @@
 
     $('#btn').click(function (e) {
         var style = $('#style')[0].alt;
-        console.log(style);
         var content = $('#content')[0].src;
-        console.log(content)
 
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        $.post($SCRIPT_ROOT + '/change-merge', {
+        $.post($SCRIPT_ROOT + '/vgg19-merge', {
             "style": style,
             'content': content
         }, function (data, status) {
             {#console.log(data, status)#}
+            var $result = $("#result");
+            $result.attr('src', data.result + "?s=" + (new Date()).getTime());
             {#console.log(data.result)#}
-            var $result = $("#vgg16");
-            $result.attr('src', data.result[0] + "?s=" + (new Date()).getTime());
-            $result.attr('width', 250);
-            var $result = $("#vgg19");
-            $result.attr('src', data.result[1] + "?s=" + (new Date()).getTime());
-            $result.attr('width', 250);
-            var $result = $("#vgg");
-            $result.attr('src', data.result[2] + "?s=" + (new Date()).getTime());
-            $result.attr('width', 250);
+            $result.attr('width', 360);
         });
     })
 </script>

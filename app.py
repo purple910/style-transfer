@@ -20,23 +20,45 @@ def hello_world():
     return render_template("index.html")
 
 
-@app.route("/one")
-def one():
-    return render_template('one.html')
+@app.route("/vgg19")
+def vgg19():
+    return render_template('vgg19.html')
 
 
-@app.route('/one-merge', methods=['post'])
-def one_merge():
+@app.route('/vgg19-merge', methods=['post'])
+def vgg19_merge():
     style = request.values.get('style')
     content = request.values.get('content')
     dataPath = content[22:]
     imagedata = base64.b64decode(dataPath)
-    if os.path.exists('static/img/content/one.jpg'):
-        os.remove('static/img/content/one.jpg')
-    with open('static/img/content/one.jpg', 'wb') as file:
+    if os.path.exists('static/img/content/vgg19.jpg'):
+        os.remove('static/img/content/vgg19.jpg')
+    with open('static/img/content/vgg19.jpg', 'wb') as file:
         file.write(imagedata)
         file.close()
-    vgg19_style_transfer('static/img/content/one.jpg', 'core/models/vgg19_paintA_' + style,
+    vgg19_style_transfer('static/img/content/vgg19.jpg', 'core/models/vgg19_paintA_' + style,
+                         'static/img/result/test.jpg')
+    return jsonify(result='static/img/result/test.jpg')
+
+
+@app.route("/vgg16")
+def vgg16():
+    return render_template('vgg16.html')
+
+
+@app.route('/vgg16-merge', methods=['post'])
+def vgg16_merge():
+    style = request.values.get('style')
+    content = request.values.get('content')
+    dataPath = content[22:]
+    imagedata = base64.b64decode(dataPath)
+    if os.path.exists('static/img/content/vgg16.jpg'):
+        os.remove('static/img/content/vgg16.jpg')
+    with open('static/img/content/vgg16.jpg', 'wb') as file:
+        file.write(imagedata)
+        file.close()
+    vgg16_style_transfer('static/img/content/vgg16.jpg',
+                         'core/models/vgg16_' + style + '/fast_style_transfer.ckpt-done',
                          'static/img/result/test.jpg')
     return jsonify(result='static/img/result/test.jpg')
 
@@ -65,6 +87,33 @@ def change_merge():
     vgg16_style_transfer('static/img/content/change.jpg', 'core/model/' + style + '.ckpt-done',
                          'static/img/result/vgg.jpg')
     return jsonify(result=['static/img/result/vgg16.jpg', 'static/img/result/vgg19.jpg', 'static/img/result/vgg.jpg'])
+
+
+@app.route('/times')
+def times():
+    return render_template('times.html')
+
+
+import time
+
+
+@app.route('/times-merge', methods=['post'])
+def times_merge():
+    style = request.values.get('style')
+    content = request.values.get('content')
+    dataPath = content[22:]
+    imagedata = base64.b64decode(dataPath)
+    if os.path.exists('static/img/content/change.jpg'):
+        os.remove('static/img/content/change.jpg')
+    with open('static/img/content/change.jpg', 'wb') as file:
+        file.write(imagedata)
+        file.close()
+    result = []
+    time.sleep(20)
+    for i in range(10):
+        # vgg19_style_transfer_times('static/img/content/change.jpg', str(i))
+        result.append('static/img/result/mosaic_' + str(i) + '.jpg')
+    return jsonify(result=result)
 
 
 @app.route('/fusion', methods=['GET', 'POST'])
@@ -124,8 +173,41 @@ def customize_weights():
         file.write(imagedata)
         file.close()
     styles = session.get('customize')
-    custom_style_transfer('static/img/content/fusion.jpg', 'static/img/result/', styles, weights)
+    custom_style_transfer('static/img/content/fusion.jpg', 'static/img/result/result_customize.jpg', styles, weights)
     return jsonify(result='static/img/result/result_customize.jpg')
+
+
+@app.route('/dataset', methods=['GET', 'POST'])
+def dataset():
+    """
+    多风格的保存
+    自定义风格权重
+    """
+    data = request.args
+    imgs = data.to_dict().get('data').split(',')
+    session['dataset'] = imgs
+    b = [int(i) + 1 for i in imgs]
+    return render_template('dataset.html', imgs=b)
+
+
+@app.route('/dataset-contrast', methods=['post'])
+def dataset_contrast():
+    """自定义权重"""
+    js = json.loads(request.get_data(as_text=True))
+    data = js["content"]
+    weights = js["weights"]
+    # print(data)
+    dataPath = data[22:]
+    imagedata = base64.b64decode(dataPath)
+    if os.path.exists('static/img/content/fusion.jpg'):
+        os.remove('static/img/content/fusion.jpg')
+    with open('static/img/content/fusion.jpg', 'wb') as file:
+        file.write(imagedata)
+        file.close()
+    styles = session.get('dataset')
+    custom_style_transfer('static/img/content/fusion.jpg', 'static/img/result/result_customize.jpg', styles, weights)
+    custom_style_transfer_train2014('static/img/content/fusion.jpg', 'static/img/result/dataset.jpg', styles, weights)
+    return jsonify(result1='static/img/result/result_customize.jpg', result2='static/img/result/dataset.jpg')
 
 
 @app.route('/chooseStyle')

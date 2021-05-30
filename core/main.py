@@ -47,6 +47,21 @@ def vgg19_style_transfer(content, model, result):
     imsave(result, gen_img)
 
 
+def vgg19_style_transfer_times(content, i):
+    X_image = imread(content)
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    saver = tf.train.import_meta_graph(
+        os.path.join('core/models/vgg19_paintA_mosaic_' + i, 'fast_style_transfer_' + i + '.meta'))
+    saver.restore(sess, tf.train.latest_checkpoint('core/models/vgg19_paintA_mosaic_' + i))
+    graph = tf.get_default_graph()
+    X = graph.get_tensor_by_name('X:0')
+    g = graph.get_tensor_by_name('transformer/g:0')
+    gen_img = sess.run(g, feed_dict={X: [X_image]})[0]
+    gen_img = np.clip(gen_img, 0, 255) / 255.
+    imsave('static/img/result/mosaic_' + i + '.jpg', gen_img)
+
+
 def one_style_transfer(content, model, result, style):
     # 定义一个参数设置器
     parser = argparse.ArgumentParser()
@@ -110,6 +125,21 @@ def custom_style_transfer(content, result, style, weights):
     parser.add_argument("--LABEL", type=int, default=style)  # 参数：风格1
     parser.add_argument("--LABELS_NUMS", type=int, default=26)  # 参数：风格数量
     parser.add_argument("--PATH_MODEL", type=str, default='core/models/paintA_models/')  # 参数：模型存储路径
+    parser.add_argument("--PATH_RESULTS", type=str, default=result)  # 参数：测试结果存储路径
+    parser.add_argument("--PATH_STYLE", type=str, default="static/img/style/png/")  # 参数：风格图片路径
+    parser.add_argument("--ALPHA", type=float, default=weights)  # 参数：Alpha1，风格权重，默认为0.25
+    args = parser.parse_args()  # 定义参数集合args
+    customize.get_image_matrix(args)
+
+
+def custom_style_transfer_train2014(content, result, style, weights):
+    # 设置参数
+    parser = argparse.ArgumentParser()  # 定义一个参数设置器
+    # 修改以下5个参数以开启训练
+    parser.add_argument("--PATH_IMG", type=str, default=content)  # 参数：选择测试图像
+    parser.add_argument("--LABEL", type=int, default=style)  # 参数：风格1
+    parser.add_argument("--LABELS_NUMS", type=int, default=26)  # 参数：风格数量
+    parser.add_argument("--PATH_MODEL", type=str, default='core/models/train2014_models/')  # 参数：模型存储路径
     parser.add_argument("--PATH_RESULTS", type=str, default=result)  # 参数：测试结果存储路径
     parser.add_argument("--PATH_STYLE", type=str, default="static/img/style/png/")  # 参数：风格图片路径
     parser.add_argument("--ALPHA", type=float, default=weights)  # 参数：Alpha1，风格权重，默认为0.25

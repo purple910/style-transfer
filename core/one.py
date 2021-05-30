@@ -68,7 +68,7 @@ class Stylizer(object):
         self.input_weight = np.zeros([1, self.stylizer_arg.LABELS_NUMS])
         # 传入权重字典，键为权重编号，键值为权重，并存到input_weight中
         for k, v in weight_dict.items():
-            self.input_weight[0, int(k)] = v
+            self.input_weight[0, k] = v
 
     def stylize(self, alpha_list=None):
         # 将风格列表及对应的权重放入字典中

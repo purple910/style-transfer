@@ -54,6 +54,7 @@
     {% endfor %}
     <button class="btn btn-info" id="fusion">随机权重</button>
     <button class="btn btn-info" id="customize">自定义权重</button>
+    <button class="btn btn-info" id="dataset">数据集的对比</button>
 </div>
 
 <script>
@@ -113,6 +114,15 @@
             data.push(list[i].title - 1)
         }
         window.location.href = "/customize?data=" + data;
+    });
+
+    $("#dataset").on('click', function (e) {
+        var list = $(".yes").not(".hidden");
+        var data = [];
+        for (let i = 0; i < list.length; i++) {
+            data.push(list[i].title - 1)
+        }
+        window.location.href = "/dataset?data=" + data;
     });
 
 </script>

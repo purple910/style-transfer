@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-select.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap-select.min.js') }}"></script>
+    <style>
+        .wrap {
+            margin: 100px auto;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row wrap">
+        <div class="col-xl-4">
+            <div class="input-group mb-lg-3">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button">文件</button>
+                </div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="contentImg"
+                           onchange="showImg(this, '#content_label')"
+                           accept="image/jpg,image/jpeg,image/png,image/PNG">
+                    <label id="content_label" class="custom-file-label" for="contentImg">img</label>
+                </div>
+            </div>
+            <img id="content">
+        </div>
+        <div class="col-xl-2">
+            {% for img in imgs %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">  <img
+                                src="static/img/style/png/{{ img }}.png" class="img-thumbnail img" width="40"></span>
+                    </div>
+                    <input type="text" class="form-control custom" value="0.5" aria-describedby="basic-addon1">
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-xl-3">
+            <div class="input-group mb-lg-3">
+                <div class="input-group-prepend">
+                    <h3>paintA 结果</h3>
+                </div>
+            </div>
+            <img id="result">
+        </div>
+        <div class="col-xl-3">
+            <div class="input-group mb-lg-3">
+                <div class="input-group-prepend">
+                    <h3>train2014 结果</h3>
+                </div>
+            </div>
+            <img id="result1">
+        </div>
+        <div>
+            <button class="btn btn-info" id="btn">转换</button>
+            <a class="btn btn-info" href="chooseStyle">重选</a>
+            <a class="btn btn-info" href="/">回到首页</a>
+        </div>
+    </div>
+
+</div>
+<script>
+    function showImg(file, labelId) {
+        var $file = $(file);
+        var fileObj = $file[0];
+        var $img = $('#content');
+        $(labelId).html(fileObj.files[0].name);
+        var reads = new FileReader();
+        reads.readAsDataURL(fileObj.files[0]);
+        reads.onload = function (e) {
+            document.getElementById("content").src = this.result;
+            var l = $file.width / 360;
+            $img.attr('width', 360);
+            $img.attr('height', $file.height / l);
+        };
+    }
+
+
+    $("#btn").on('click', function (e) {
+        let src = $('#content')[0].src;
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        cus = []
+        $C = $(".custom")
+        for (let i = 0; i < $C.length; i++) {
+            cus.push($($C[i]).val())
+        }
+        if (src === null || src === '') {
+            alert("选择内容图像")
+            return;
+        }
+
+        $.ajax({
+            type: "post",
+            timeout: 10000,
+            url: $SCRIPT_ROOT + '/dataset-contrast',
+            data: JSON.stringify({"content": src, "weights": cus}),
+            async: false,
+            contentType: 'application/json',
+            success: (data) => {
+                console.log(data);
+                var $result = $("#result");
+                $result.attr('src', data.result1 + "?s=" + (new Date()).getTime());
+                $result.attr('width', 250);
+                var $result = $("#result1");
+                $result.attr('src', data.result2 + "?s=" + (new Date()).getTime());
+                $result.attr('width', 250);
+            },
+            error: (e) => {
+                console.log(e)
+            }
+        });
+    });
+</script>
+</body>
+</html>
